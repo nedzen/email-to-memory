@@ -9,6 +9,8 @@ can actually query.
 processed as it lands in your agent — the pipeline is already upsert-safe; delivery
 is the missing piece.
 
+![Hindsight email bank — memories, tags, and thread recall](docs/preview.png)
+
 ```mermaid
 flowchart LR
   mbox[Gmail mbox export] --> census[correspondence_census]
