@@ -1,0 +1,17 @@
+# Personal / generated data
+data/
+*.mbox
+takeout_inbox__*/
+config/pipeline.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE / local
+.cursor/
+.DS_Store
+*.log
