@@ -38,6 +38,22 @@ pollutes recall with receipts, list mail, and verification codes. This pipeline:
 The agent-facing surface is one CLI (`ea.py`) and an optional Hermes skill
 (`skill/email-archive/SKILL.md`).
 
+## Installing the skill into Hermes
+
+The skill doc and the query CLI are the only two things an agent needs at runtime.
+Install both by symlinking from your clone — then `git pull` updates your agent
+automatically:
+
+```bash
+mkdir -p ~/.hermes/bin/email ~/.hermes/skills/email/email-archive
+ln -sf "$(pwd)/scripts/ea.py"   ~/.hermes/bin/email/ea.py
+ln -sf "$(pwd)/skill/email-archive/SKILL.md" ~/.hermes/skills/email/email-archive/SKILL.md
+```
+
+Then set a concrete `EA=` path in the installed SKILL.md (replace the placeholder)
+or define an alias. Restart the agent session so the skill is picked up; invoke as
+`/email-archive` (hyphen — the frontmatter `name` decides, not the folder name).
+
 ## Quickstart (synthetic demo, ~2 minutes)
 
 **Prerequisites:** Python 3.10+, a running Hindsight daemon, and a local OpenAI-compatible
@@ -128,3 +144,11 @@ Still to build:
 Issues and PRs welcome. Keep personal data out of the repo — use `config/pipeline.json`
 locally (gitignored) and the synthetic demo generator for examples. Match the existing
 style: stdlib-only scripts, config-driven identity, no pip dependencies.
+
+## Real-world use
+
+This pipeline was built and is maintained against a production archive of
+~3,300 threads / ~11,500 messages of personal correspondence (two Gmail
+mailboxes, 164k messages scanned by the census stage). The design decisions,
+benchmarks, and coverage semantics above come from that run — they are measured,
+not aspirational.

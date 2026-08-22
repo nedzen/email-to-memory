@@ -72,7 +72,11 @@ def hs_script_path() -> Path:
 
 
 def abs_path(cfg: dict[str, Any], rel: str) -> Path:
-    return ROOT / rel
+    # Data files may live outside the clone: "workspace" in config points at the
+    # data root (defaults to the clone itself). Relative paths resolve from there.
+    workspace = Path((cfg.get("workspace") or cfg.get("_root") or ROOT)).expanduser()
+    p = Path(rel).expanduser()
+    return p if p.is_absolute() else workspace / p
 
 
 def owner_set(cfg: dict[str, Any]) -> set[str]:
