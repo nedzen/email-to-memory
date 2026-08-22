@@ -60,12 +60,17 @@ VOCAB = {
     "feedback": "reviews, critique, testimonials",
 }
 
+def effective_vocab(cfg: dict) -> dict[str, str]:
+    """Base vocabulary with optional per-user overrides from config
+    (tag_vocab_overrides: {"tax": "custom description here"})."""
+    overrides = cfg.get("tag_vocab_overrides") or {}
+    return {**VOCAB, **{k: v for k, v in overrides.items() if k in VOCAB}}
+
 SYSTEM = (
     "You tag email threads for a personal archive. Choose 1 to 3 tags from the "
     "allowed list that best describe what the thread is ABOUT. Prefer fewer, more "
     "specific tags. Reply with only the tags, comma-separated, lowercase, no other "
     "text. If none fit well, reply: none\n\nAllowed tags:\n"
-    + "\n".join(f"- {k}: {v}" for k, v in VOCAB.items())
 )
 
 
@@ -74,7 +79,8 @@ def api_key(cfg: dict) -> str:
 
 
 def ask(
-    subject: str, body: str, counterparties: str, model: str, key: str, base_url: str
+    subject: str, body: str, counterparties: str, model: str, key: str, base_url: str,
+    system: str = SYSTEM,
 ) -> tuple[list[str], float]:
     prompt = (
         f"Subject: {subject}\nWith: {counterparties}\n\n{body[:3000]}\n\nTags:"
@@ -82,7 +88,7 @@ def ask(
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": SYSTEM},
+            {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ],
         "temperature": 0,
@@ -117,6 +123,8 @@ def main() -> None:
     args = ap.parse_args()
 
     cfg = load_config(Path(args.config))
+    vocab = effective_vocab(cfg)
+    system = SYSTEM + "\n".join(f"- {k}: {v}" for k, v in vocab.items())
     conn = sqlite3.connect(abs_path(cfg, cfg["outputs"]["sqlite"]))
     conn.row_factory = sqlite3.Row
     cols = {r[1] for r in conn.execute("PRAGMA table_info(threads)")}
@@ -130,7 +138,7 @@ def main() -> None:
     if args.limit:
         sql += f" LIMIT {int(args.limit)}"
     rows = conn.execute(sql).fetchall()
-    print(f"Tagging {len(rows)} threads from a {len(VOCAB)}-tag vocabulary")
+    print(f"Tagging {len(rows)} threads from a {len(vocab)}-tag vocabulary")
 
     key = api_key(cfg)
     model = llm_model(cfg, args.model)
@@ -145,7 +153,7 @@ def main() -> None:
             body = json.loads(p.read_text(encoding="utf-8")).get("content") or ""
         try:
             cps = ", ".join(json.loads(r["counterparties"] or "[]")[:4])
-            tags, el = ask(r["subject"] or "", body, cps, model, key, llm_url)
+            tags, el = ask(r["subject"] or "", body, cps, model, key, llm_url, system)
             total_time += el
         except Exception as exc:
             print(f"  err {r['document_id']}: {exc}", file=sys.stderr)

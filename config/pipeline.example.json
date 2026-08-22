@@ -15,7 +15,11 @@
       "mbox_path": "data/demo.mbox"
     }
   },
-  "drop_labels": ["Spam", "Trash", "Chat"],
+  "drop_labels": [
+    "Spam",
+    "Trash",
+    "Chat"
+  ],
   "drop_categories": [
     "Category Promotions",
     "Category Social",
@@ -27,7 +31,9 @@
   "drop_categories_unless_two_way": [
     "Category Updates"
   ],
-  "force_keep_labels": ["Starred"],
+  "force_keep_labels": [
+    "Starred"
+  ],
   "machine_local_parts": [
     "noreply",
     "no-reply",
@@ -190,5 +196,10 @@
     "base_url": "http://127.0.0.1:8000/v1",
     "model": "your-local-model",
     "api_key_env": "LLM_API_KEY"
-  }
+  },
+  "extraction": {
+    "mode": "concise",
+    "custom_instructions": ""
+  },
+  "tag_vocab_overrides": {}
 }

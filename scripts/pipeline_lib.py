@@ -177,6 +177,12 @@ def is_machine_sender(email: str | None, cfg: dict[str, Any]) -> bool:
     e = norm_email(email) or ""
     if not e:
         return False
+    # Owner addresses must never count as machine senders. Bulk patterns like
+    # "hello@" / "info@" match common personal address local-parts, which would
+    # silently reclassify the owner's outbound mail as promo and drop two-way
+    # threads from the census.
+    if is_owner(e, owner_set(cfg)):
+        return False
     lp = local_part(e)
     for pat in cfg.get("machine_local_parts", []):
         p = pat.lower().rstrip("@")
@@ -247,7 +253,7 @@ def is_machine_message(record: dict[str, Any], cfg: dict[str, Any]) -> tuple[boo
     if is_machine_sender(frm, cfg):
         return True, "noreply_from"
     rp = sec.get("return_path")
-    if is_machine_return_path(rp, cfg):
+    if is_machine_return_path(rp, cfg) and not is_owner(frm, owner_set(cfg)):
         return True, "bounce_return_path"
     if is_otp_subject(subj):
         return True, "otp_subject"

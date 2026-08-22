@@ -96,6 +96,15 @@ def configure_bank(cfg: dict, bank: str) -> None:
         "observations_mission": EMAIL_OBSERVATIONS_MISSION,
         "observation_scopes": "per_tag",
     }
+    # Optional per-user extraction tuning lives in config, not code:
+    #   extraction.mode: "concise" (default) or "custom"
+    #   extraction.custom_instructions: free text appended as retain_custom_instructions
+    extraction = cfg.get("extraction") or {}
+    mode = extraction.get("mode")
+    custom = extraction.get("custom_instructions")
+    if mode == "custom" and custom:
+        updates["retain_extraction_mode"] = "custom"
+        updates["retain_custom_instructions"] = custom
     hs(
         "--bank",
         bank,
@@ -667,6 +676,8 @@ def main() -> None:
         return
 
     if args.reprocess_empty:
+        # Reprocess can reset extraction mode; re-assert bank config first.
+        configure_bank(cfg, bank)
         reprocess_empty(cfg, bank, args.max_threads)
         return
 
