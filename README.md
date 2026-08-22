@@ -59,8 +59,14 @@ or define an alias. Restart the agent session so the skill is picked up; invoke 
 **Prerequisites:** Python 3.10+, a running Hindsight daemon, and a local OpenAI-compatible
 LLM for triage/topics/ingest (optional for census + build only).
 
+> **LLM gotchas:** set `llm.model` to a model your server actually serves (check
+> `GET /v1/models`) — an unknown name fails with 404. Many local servers
+> (llama.cpp server, oMLX, LM Studio with auth) **require an API key even on
+> localhost**: export it under the env var named in `llm.api_key_env` or every LLM
+> call fails with 401.
+
 ```bash
-git clone <your-repo-url> email-to-memory && cd email-to-memory
+git clone https://github.com/nedzen/email-to-memory && cd email-to-memory
 
 cp config/pipeline.example.json config/pipeline.json
 # Edit owner_name, owner_emails, hindsight.api_url, llm.* as needed.
@@ -137,6 +143,8 @@ Still to build:
 | `scripts/ea.py` | Agent-facing query CLI |
 | `scripts/hs.py` | Vendored Hindsight REST helper (stdlib only) |
 | `skill/email-archive/SKILL.md` | Hermes agent skill |
+| `docs/ARCHITECTURE.md` | Code architecture, invariants, sharp edges |
+| `docs/TEST_PLAN.md` | Agent acceptance tests (P0/P1) |
 | `tools/make_demo_mbox.py` | Synthetic mbox + metadata for demos |
 
 ## Contributing

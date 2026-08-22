@@ -120,4 +120,5 @@ python3 scripts/ingest_email_bank.py --all --tier A --max-threads 200   # resuma
 python3 scripts/ingest_email_bank.py --status                           # progress
 ```
 
-Full pipeline docs: `README.md`.
+Full pipeline docs: `README.md`. Architecture deep-dive for contributors:
+`docs/ARCHITECTURE.md`.

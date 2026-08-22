@@ -194,7 +194,8 @@
   },
   "llm": {
     "base_url": "http://127.0.0.1:8000/v1",
-    "model": "your-local-model",
+    "_comment": "model: use a model your server actually serves (check GET /v1/models). Many local servers (llama.cpp, oMLX) REQUIRE an API key even for localhost — set it via the env var named in api_key_env, otherwise LLM calls fail with 401.",
+    "model": "CHANGE-ME-to-a-model-your-server-serves",
     "api_key_env": "LLM_API_KEY"
   },
   "extraction": {
